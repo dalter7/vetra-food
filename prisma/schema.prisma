@@ -1,0 +1,94 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ----- Tables (mesas) -----------------------------------------------------
+
+model Table {
+  id        String   @id @default(cuid())
+  number    Int      @unique
+  seats     Int      @default(2)
+  createdAt DateTime @default(now())
+
+  orders Order[]
+  calls  Call[]
+}
+
+// ----- Menu -----------------------------------------------------------------
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String
+  icon      String?
+  sortOrder Int        @default(0)
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  name        String
+  description String      @default("")
+  price       Float
+  emoji       String      @default("🍽️")
+  available   Boolean     @default(true)
+  featured    Boolean     @default(false)
+  spicy       Boolean     @default(false)
+  vegetarian  Boolean     @default(false)
+  prepMinutes Int         @default(15)
+  sortOrder   Int         @default(0)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  orderItems OrderItem[]
+}
+
+// ----- Orders -----------------------------------------------------------------
+// Order.status / OrderItem.status: "received" | "preparing" | "ready" | "delivered" | "paid" | "cancelled"
+
+model Order {
+  id        String      @id @default(cuid())
+  status    String      @default("received")
+  notes     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  tableId String
+  table   Table  @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  name      String
+  unitPrice Float
+  quantity  Int     @default(1)
+  notes     String?
+  status    String  @default("received")
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  menuItemId String?
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+}
+
+// ----- Calls (chamar garcom / pedir conta) ------------------------------------
+// type: "waiter" | "bill"   status: "pending" | "resolved"
+
+model Call {
+  id         String    @id @default(cuid())
+  type       String
+  status     String    @default("pending")
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  tableId String
+  table   Table  @relation(fields: [tableId], references: [id], onDelete: Cascade)
+}
