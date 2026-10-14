@@ -6,7 +6,7 @@ declare global {
 }
 
 export type ServerEvent =
-  | { name: "order:new"; room: "kitchen" | "admin"; payload: unknown }
+  | { name: "order:new"; room: "kitchen" | "admin" | "waiters"; payload: unknown }
   | { name: "order:status"; room: string; payload: unknown }
   | { name: "call:new"; room: "waiters" | "admin"; payload: unknown }
   | { name: "call:status"; room: string; payload: unknown };
