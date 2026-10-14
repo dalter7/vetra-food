@@ -192,6 +192,11 @@ export default function GarcomPage() {
                         ? "Solicitou a conta"
                         : "Chamando o garçom"}
                   </p>
+                  {item.kind === "call" && item.call.note && (
+                    <p className="mt-1 rounded-lg bg-gold-100 px-2 py-1 text-xs italic text-gold-600">
+                      &ldquo;{item.call.note}&rdquo;
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => (item.kind === "order-ready" ? deliverOrder(item.order) : resolveCall(item.call))}

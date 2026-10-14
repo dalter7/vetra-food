@@ -44,13 +44,18 @@ export function TrackingView({
             initial={{ opacity: 0, y: -8, height: 0 }}
             animate={{ opacity: 1, y: 0, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-3 rounded-xl2 border border-gold-300 bg-gold-100 px-4 py-3 text-sm font-medium text-gold-600"
+            className="rounded-xl2 border border-gold-300 bg-gold-100 px-4 py-3 text-sm font-medium text-gold-600"
           >
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-500" />
-            </span>
-            {call.type === "waiter" ? "Garçom chamado — a caminho da sua mesa" : "Conta solicitada — o garçom já foi avisado"}
+            <div className="flex items-center gap-3">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold-500 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-500" />
+              </span>
+              {call.type === "waiter" ? "Garçom chamado — a caminho da sua mesa" : "Conta solicitada — o garçom já foi avisado"}
+            </div>
+            {call.note && (
+              <p className="ml-5 mt-1 text-xs italic text-gold-600/80">&ldquo;{call.note}&rdquo;</p>
+            )}
           </motion.div>
         ))}
       </AnimatePresence>

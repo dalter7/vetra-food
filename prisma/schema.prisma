@@ -85,6 +85,7 @@ model OrderItem {
 model Call {
   id         String    @id @default(cuid())
   type       String
+  note       String?
   status     String    @default("pending")
   createdAt  DateTime  @default(now())
   resolvedAt DateTime?

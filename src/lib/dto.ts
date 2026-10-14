@@ -32,6 +32,7 @@ export function toCallDTO(call: CallWithTable): CallDTO {
   return {
     id: call.id,
     type: call.type as CallType,
+    note: call.note,
     status: call.status as CallStatus,
     createdAt: call.createdAt.toISOString(),
     resolvedAt: call.resolvedAt ? call.resolvedAt.toISOString() : null,

@@ -57,6 +57,7 @@ export interface OrderDTO {
 export interface CallDTO {
   id: string;
   type: CallType;
+  note: string | null;
   status: CallStatus;
   createdAt: string;
   resolvedAt: string | null;

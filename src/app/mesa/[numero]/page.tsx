@@ -10,6 +10,7 @@ import { Logo } from "@/components/Logo";
 import { MenuView } from "@/components/customer/MenuView";
 import { ItemSheet } from "@/components/customer/ItemSheet";
 import { CartSheet } from "@/components/customer/CartSheet";
+import { CallWaiterSheet } from "@/components/customer/CallWaiterSheet";
 import { TrackingView } from "@/components/customer/TrackingView";
 import { useCartStore } from "@/lib/cart-store";
 import { getSocket } from "@/lib/socket-client";
@@ -32,6 +33,7 @@ export default function MesaPage() {
   const [tab, setTab] = useState<"menu" | "pedido">("menu");
   const [selectedItem, setSelectedItem] = useState<MenuItemDTO | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [callSheetOpen, setCallSheetOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const cart = useCartStore();
@@ -163,11 +165,11 @@ export default function MesaPage() {
     }
   }
 
-  async function sendCall(type: "waiter" | "bill") {
+  async function sendCall(type: "waiter" | "bill", note?: string) {
     if (!table) return;
     primeAudio();
     const already = calls.some((c) => c.type === type && c.status === "pending");
-    if (already) {
+    if (already && !note) {
       notify(type === "waiter" ? "O garçom já foi chamado." : "A conta já foi solicitada.", "info");
       return;
     }
@@ -175,14 +177,22 @@ export default function MesaPage() {
       const res = await fetch("/api/calls", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tableNumber: table.number, type }),
+        body: JSON.stringify({ tableNumber: table.number, type, note }),
       });
       const data = await res.json();
       setCalls((prev) => [...prev.filter((c) => c.id !== data.call.id), data.call]);
-      notify(type === "waiter" ? "Garçom chamado!" : "Conta solicitada!", "success");
+      notify(
+        type === "waiter" ? (already ? "Observação enviada ao garçom!" : "Garçom chamado!") : "Conta solicitada!",
+        "success"
+      );
     } catch {
       notify("Não foi possível enviar sua solicitação.", "error");
     }
+  }
+
+  function handleCallWaiter(note: string) {
+    setCallSheetOpen(false);
+    sendCall("waiter", note || undefined);
   }
 
   if (loading) {
@@ -229,7 +239,10 @@ export default function MesaPage() {
         <div className="flex items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.88 }}
-            onClick={() => sendCall("waiter")}
+            onClick={() => {
+              primeAudio();
+              setCallSheetOpen(true);
+            }}
             className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${
               waiterPending
                 ? "animate-pulse-ring border-gold-500 bg-gold-100 text-gold-600"
@@ -285,6 +298,7 @@ export default function MesaPage() {
 
       <ItemSheet item={selectedItem} onClose={() => setSelectedItem(null)} onAdd={handleAdd} />
       <CartSheet open={cartOpen} onClose={() => setCartOpen(false)} onSubmit={handleSubmitOrder} submitting={submitting} />
+      <CallWaiterSheet open={callSheetOpen} onClose={() => setCallSheetOpen(false)} onConfirm={handleCallWaiter} />
     </div>
   );
 }
